@@ -14,19 +14,14 @@ const downloadFile = (data, filename) => {
   /* From StackOverflow:
   http://stackoverflow.com/questions/20300547/download-csv-file-from-web-api-in-angular-js */
 
-  if (window.navigator.msSaveOrOpenBlob) {
-     const blob = new Blob([decodeURIComponent(encodeURI(data))], {
-       type: "text/csv;charset=utf-8;"
-     });
-     navigator.msSaveBlob(blob, filename);
-   } else {
-     const a = document.createElement('a');
-     a.href = 'data:attachment/csv;charset=utf-8,' + encodeURI(data);
-     a.target = '_blank';
-     a.download = filename;
-     document.body.appendChild(a);
-     a.click();
-   }
+  const encodedURIComponent = encodeURIComponent(data)
+  const a = document.createElement('a');
+  a.setAttribute('download', filename);
+  a.setAttribute('href', `data:text/plain;charset=utf-8,${encodedURIComponent}`);
+  a.style.display = 'none';
+  document.getElementsByTagName('body')[0].appendChild(a);
+  a.click();
+  document.getElementsByTagName('body')[0].removeChild(a);
 };
 
 export default {
@@ -81,10 +76,12 @@ export default {
 
     saveJson() {
       const filename = prompt('Enter filename');
-      downloadFile(JSON.stringify({
+      const data = JSON.stringify({
         controls: this.controls,
         oscillations: this.oscillations,
-      }, null, 2), filename);
+      }, null, 2);
+      console.log(data);
+      downloadFile(data, filename);
     },
 
     saveObj() {
